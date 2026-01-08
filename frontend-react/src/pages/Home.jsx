@@ -1,0 +1,17 @@
+import React from 'react'
+import { Button } from 'antd';
+import Header from '../components/Header';
+import Main from '../components/Main';
+import Footer from '../components/Footer';
+
+const Home = () => {
+  return (
+    <div>
+        <Header />
+        <Main />
+        <Footer />
+    </div>
+  )
+}
+
+export default Home
