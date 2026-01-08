@@ -6,14 +6,16 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../features/auth/AuthSlice";
 
-const Login = ({ handleOk }) => {
+const Login = ({ handleOk, handleCancel }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [form] = Form.useForm();
 
   const onFinish = async (values) => {
-    handleOk()
     console.log("Login Data:", values);
     dispatch(login(values));
+    form.resetFields();
+    handleOk()
     // try {
     //   // direct de-structuring from the response that we get from the API Call
     //   const { data } = await axios.post(
@@ -41,6 +43,7 @@ const Login = ({ handleOk }) => {
   return (
     <>
       <Form
+        form={form}
         layout="vertical"
         onFinish={onFinish}
       >

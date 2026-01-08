@@ -1,39 +1,51 @@
-import React from "react";
-import { Form, Input, Button } from "antd";
+import React, { useState } from "react";
+import { Form, Input, Button, message } from "antd";
 import { UserOutlined, MailOutlined, LockOutlined } from "@ant-design/icons";
 import { namePattern, emailEnd, pwdPattern, pwdRule } from "../utils/constants";
+import axios from "axios";
+import { handleAxiosError } from "../utils/HandleAxiosError";
 
-const Register = () => {
+const Register = ({handleOk}) => {
+  const [usernameError, setUsernameError] = useState("");
 
+  const [form] = Form.useForm();
   const onFinish = async (values) => {
     try {
       console.log("Register Data:", values);
-      // const user = await axios.post("http://localhost:3000/users/register", values);
+      const user = await axios.post("http://127.0.0.1:8000/api/v1/register/", values);
 
-      // console.log("Backend Response:", user.data);
-      // message.success("Registered successfully!");
+      console.log("Backend Response:", user.data);
+      form.resetFields();
+      handleOk();
+      message.success("Registered successfully!");
     } catch (error) {
-      // handleAxiosError(error);
+      handleAxiosError(error);
+      console.log(error.response.data);
+      console.log(typeof(error.response.data));
+      if(error.response.data.username) {
+        setUsernameError(error.response.data.username);
+      }
+      // message.error(error.response.data);
     }
   };
 
   return (
     <>
-      <Form layout="vertical" onFinish={onFinish}>
+      <Form layout="vertical" form={form} onFinish={onFinish}>
         <Form.Item
-          label="Full Name"
-          name="name"
+          label="Username"
+          name="username"
           rules={[
-            { required: true, message: "Please enter your full name." },
-            { min: 5, message: "Name must contain atleast 5 characters." },
+            { required: true, message: "Please enter your username." },
+            { min: 5, message: "Username must contain atleast 5 characters." },
             {
               max: 30,
-              message: "Name must not exceed more than 30 characters.",
+              message: "Username must not exceed more than 30 characters.",
             },
             {
               pattern: namePattern,
               message:
-                "Name must contain only small, capital letters and no consecutive space characters",
+                "Username must contain only small, capital letters and no consecutive space characters",
             },
           ]}
         >
@@ -44,6 +56,7 @@ const Register = () => {
             allowClear
           />
         </Form.Item>
+        <span className="text-red-400">{usernameError}</span>
 
         <Form.Item
           label="Email"

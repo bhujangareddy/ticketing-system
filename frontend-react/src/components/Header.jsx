@@ -24,10 +24,10 @@ const Header = () => {
   };
 
   const handleOk = () => {
-    console.log('The modal will be closed after two seconds');
+    console.log('The modal will be closed after one second');
     setTimeout(() => {
       setOpen(false);
-    }, 2000);
+    }, 1000);
   };
 
   const handleCancel = () => {
@@ -47,8 +47,9 @@ const Header = () => {
         open={open}
         onCancel={handleCancel}
         footer={null}
+        destroyOnHidden
       >
-        {form == "Login" ? <Login handleOk={handleOk}/> : <Register handleOk={handleOk}/>} 
+        {form == "Login" ? <Login handleOk={handleOk} handleCancel={handleCancel} /> : <Register handleOk={handleOk} handleCancel={handleCancel}/>} 
       </Modal>
     </div>
   )
