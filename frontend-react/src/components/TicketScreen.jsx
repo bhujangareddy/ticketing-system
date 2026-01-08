@@ -188,7 +188,7 @@ const TicketScreen = () => {
               <EditTicketModal selectedTask={selectedTask} setOpen={setOpen} />
             )}
           </Drawer>
-        </div> : <div>No Tickets Added Yet</div>}
+        </div> : <div className="text-2xl text-green-400">No Tickets Added Yet</div>}
     </>
   );
 };

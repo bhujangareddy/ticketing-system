@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Form, Input, Button } from "antd";
-import { MailOutlined, LockOutlined } from "@ant-design/icons";
-import { emailEnd, pwdPattern, pwdRule } from "../utils/constants";
+import { Form, Input, Button, message } from "antd";
+import { UserOutlined, MailOutlined, LockOutlined } from "@ant-design/icons";
+import { namePattern, emailEnd, pwdPattern, pwdRule } from "../utils/constants";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "../features/auth/AuthSlice";
+import axios from "axios";
+import { handleAxiosError } from "../utils/HandleAxiosError";
 
 const Login = ({ handleOk, handleCancel }) => {
   const dispatch = useDispatch();
@@ -13,41 +15,36 @@ const Login = ({ handleOk, handleCancel }) => {
 
   const onFinish = async (values) => {
     console.log("Login Data:", values);
-    dispatch(login(values));
-    form.resetFields();
-    handleOk()
-    // try {
-    //   // direct de-structuring from the response that we get from the API Call
-    //   const { data } = await axios.post(
-    //     "http://localhost:3000/users/login",
-    //     values
-    //   );
 
-    //   console.log("Backend Response:", data);
-    //   if (values.rememberMe) {
-    //     localStorage.setItem("authToken", data.accessToken);
-    //   } else {
-    //     sessionStorage.setItem("authToken", data.accessToken);
-    //   }
+    try {
+      // direct de-structuring from the response that we get from the API Call
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/v1/token/",
+        values
+      );
 
-    //   // Attach token for future API calls
-    //   axios.defaults.headers.common["Authorization"] = `Bearer ${data.accessToken}`;
+      console.log("Backend Response:", response.data);
+      localStorage.setItem("accessToken", response.data.access);
+      localStorage.setItem("refreshToken", response.data.refresh);
 
-    //   dispatch(login(data));
-    //   navigate("/tasks");
-    //   message.success("Login Successful!");
-    // } catch (error) {
-    //   handleAxiosError(error);
-    // }
+      // // Attach token for future API calls
+      // axios.defaults.headers.common["Authorization"] = `Bearer ${data.accessToken}`;
+      
+      dispatch(login({...values, ...response.data}));
+      form.resetFields();
+      handleOk();
+      // navigate("/tasks");
+      message.success("Login Successful!");
+    } catch (error) {
+      handleAxiosError(error);
+      console.log(error);
+      message.error("Invalid Credentials");
+    }
   };
   return (
     <>
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-      >
-        <Form.Item
+      <Form form={form} layout="vertical" onFinish={onFinish}>
+        {/* <Form.Item
           label="Email"
           name="email"
           rules={[
@@ -69,6 +66,21 @@ const Login = ({ handleOk, handleCancel }) => {
             size="large"
             allowClear
           />
+        </Form.Item> */}
+
+        <Form.Item
+          label="Username"
+          name="username"
+          rules={[
+            { required: true, message: "Please enter your username." },
+          ]}
+        >
+          <Input
+            prefix={<UserOutlined className="text-gray-400" />}
+            placeholder="Pati Bhujanga Reddy"
+            size="large"
+            allowClear
+          />
         </Form.Item>
 
         <Form.Item
@@ -76,11 +88,6 @@ const Login = ({ handleOk, handleCancel }) => {
           name="password"
           rules={[
             { required: true, message: "Please enter your password!" },
-            { min: 8, message: "Password must be atleast 8 characters!" },
-            {
-              pattern: pwdPattern,
-              message: pwdRule,
-            },
           ]}
         >
           <Input.Password
